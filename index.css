@@ -1,0 +1,55 @@
+body{
+    --main-game-board-height: 100%;
+    --game-container-width-ratio: 0.9;
+    background: black;
+    display: flex;
+    justify-content: space-around;
+}
+main{
+    --main-width: calc(var(--main-game-board-height)/(2*var(--game-container-width-ratio)));
+    display: flex;
+    height: var(--main-game-board-height);
+    width: var(--main-width);
+    background: aliceblue;
+    opacity: 0.3;
+}
+.game-container{
+    --main-game-container-width: calc(var(--game-container-width-ratio)*100%);
+    display: flex;
+    width: var(--main-game-container-width);
+    height: 100%;
+    background: pink;
+    flex-wrap: wrap;
+    flex: 1;
+}
+.score-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: calc((1 - var(--game-container-width-ratio))*100%);
+    height: 100%;
+    background: red;
+    
+}
+.score{
+    height: 3rem;
+    width: 100%;
+    background: blue;
+}
+.next-piece{
+    height: 100px;
+    width: 100%;
+    background: violet;
+}
+.game-cell{
+    display: flex;
+    flex-basis: 10%;
+    height: 5%;
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin: -1px;
+    border: 1px solid;
+}
+.stick, .l, .l2, .s, .s2, .pyramid, .square{
+    background: aquamarine;
+}
