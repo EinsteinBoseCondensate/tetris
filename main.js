@@ -85,39 +85,44 @@ const rotateFigure = () => {
         .filter((v, i, s) => i === s.indexOf(v));
     if (extremeModules.length === 1) {
         let sanitizedCurrentIndexes = window.currentFigure.currentIndexes;
-        if (extremeModules[0] === 0) {
 
-            //TODO: IDENTIFY EACH PIECE AND TREAT IT SEPARATELY
-            if (window.currentFigure.currentIndexes.indexOf(rotationOrigin - 20) + 1) {
-                sanitizedCurrentIndexes = window.currentFigure.currentIndexes.map(index => index + 2);
-            } else if (window.currentFigure.currentIndexes.indexOf(rotationOrigin - 10) + 1) {
-                sanitizedCurrentIndexes = window.currentFigure.currentIndexes.map(index => index + 1);
-            } 
-        } else {
-            if (window.currentFigure.currentIndexes.indexOf(rotationOrigin - 20) + 1) {
-                sanitizedCurrentIndexes = window.currentFigure.currentIndexes.map(index => index - 2);
-            } else if (window.currentFigure.currentIndexes.indexOf(rotationOrigin + 20) + 1) {
-                sanitizedCurrentIndexes = window.currentFigure.currentIndexes.map(index => index - 2);
-            } else if (window.currentFigure.currentIndexes.indexOf(rotationOrigin + 10) + 1) {
-                sanitizedCurrentIndexes = window.currentFigure.currentIndexes.map(index => index - 1);
-            }
-
+        switch (window.currentFigure.class) {
+            case gameFigures.Stick.class:
+                sanitizedCurrentIndexes = getStickSanitizedCurrentIndexes(extremeModules[0], rotationOrigin);
+                break;
+            case gameFigures.Pyramid.class:
+                sanitizedCurrentIndexes = getPyramidSanitizedCurrentIndexes(extremeModules[0], rotationOrigin);
+                break;
+            case gameFigures.S.class:
+                sanitizedCurrentIndexes = getSSanitizedCurrentIndexes(extremeModules[0], rotationOrigin);
+                break;
+            case gameFigures.S2.class:
+                sanitizedCurrentIndexes = getS2SanitizedCurrentIndexes(extremeModules[0], rotationOrigin);
+                break;
+            case gameFigures.L.class:
+                sanitizedCurrentIndexes = getLSanitizedCurrentIndexes(rotationOrigin);
+                break;
+            case gameFigures.L2.class:
+                sanitizedCurrentIndexes = getL2SanitizedCurrentIndexes(rotationOrigin);
+                break;
+            default:
+                throw new Error(`wtf is this ${window.currentFigure.class} class?`)
         }
-
 
         if (sanitizedCurrentIndexes.filter(index => index > 199).length ||
             sanitizedCurrentIndexes.filter(index => window.cells[index].classList.contains(placedCellClassName)).length)
             return;
 
-
-
-        rotationOrigin = window.currentFigure.currentIndexes[1];
+        rotationOrigin = sanitizedCurrentIndexes[1];
+        window.currentFigure.currentIndexes = sanitizedCurrentIndexes;
 
     }
-    let newIndexes = [getRotatedIndex(window.currentFigure.currentIndexes[0], rotationOrigin),
+    let newIndexes = [
+        getRotatedIndex(window.currentFigure.currentIndexes[0], rotationOrigin),
         rotationOrigin,
-    getRotatedIndex(window.currentFigure.currentIndexes[2], rotationOrigin),
-    getRotatedIndex(window.currentFigure.currentIndexes[3], rotationOrigin)];
+        getRotatedIndex(window.currentFigure.currentIndexes[2], rotationOrigin),
+        getRotatedIndex(window.currentFigure.currentIndexes[3], rotationOrigin)
+    ];
 
     if (newIndexes.filter(index => index > 199).length)
         return;
@@ -127,6 +132,73 @@ const rotateFigure = () => {
         window.cells[index].classList.add(window.currentFigure.class);
     });
 }
+const getStickSanitizedCurrentIndexes = (module, rotationOrigin) => {
+    let result = window.currentFigure.currentIndexes;
+    if(module === 9){
+        if(result.includes(rotationOrigin - 20))
+            result = result.map(index => index - 2)
+        else if(result.includes(rotationOrigin + 20))
+            result = result.map(index => index - 1)
+    }else if(module === 0){
+        if(result.includes(rotationOrigin + 20))
+            result = result.map(index => index + 2)
+        else if(result.includes(rotationOrigin - 20))
+            result = result.map(index => index + 1)
+    }
+    return result;
+}
+const getPyramidSanitizedCurrentIndexes = (module, rotationOrigin) => {
+    let result = window.currentFigure.currentIndexes;
+    if(module === 9){
+        if(result.includes(rotationOrigin + 10) && rotationOrigin%10 === 9)
+            result = result.map(index => index - 1)
+    }else if(module === 0){
+        if(result.includes(rotationOrigin + 10) && rotationOrigin%10 === 0)
+            result = result.map(index => index + 1)
+    }
+    return result;
+}
+const getSSanitizedCurrentIndexes = (module, rotationOrigin) => {
+    let result = window.currentFigure.currentIndexes;
+    if(module === 9){
+        if(result.includes(rotationOrigin + 10) && rotationOrigin%10 === 9)
+            result = result.map(index => index - 1)
+    }else if(module === 0){
+        if(result.includes(rotationOrigin - 10) && rotationOrigin%10 === 0)
+            result = result.map(index => index + 1)
+    }
+    return result;
+}
+const getS2SanitizedCurrentIndexes = (module, rotationOrigin) => {
+    let result = window.currentFigure.currentIndexes;
+    if(module === 9){
+        if(result.includes(rotationOrigin - 10) && rotationOrigin%10 === 9)
+            result = result.map(index => index - 1)
+    }else if(module === 0){
+        if(result.includes(rotationOrigin + 10) && rotationOrigin%10 === 0)
+            result = result.map(index => index + 1)
+    }
+    return result;
+}
+const getLSanitizedCurrentIndexes = (rotationOrigin) => {
+    let result = window.currentFigure.currentIndexes;
+    if(rotationOrigin%10 === 9){
+        result = result.map(index => index - 1)
+    }else if(rotationOrigin%10 === 0){
+        result = result.map(index => index + 1)
+    }
+    return result;
+}
+const getL2SanitizedCurrentIndexes = (rotationOrigin) => {
+    let result = window.currentFigure.currentIndexes;
+    if(rotationOrigin%10 === 9){
+        result = result.map(index => index - 1)
+    }else if(rotationOrigin%10 === 0){
+        result = result.map(index => index + 1)
+    }
+    return result;
+}
+
 const getRotatedIndex = (indexToRotate, originIndex) => {
     const firstRowIndexOfOrigin = Math.floor(originIndex / 10) * 10;
     if (indexToRotate >= firstRowIndexOfOrigin && indexToRotate < firstRowIndexOfOrigin + 10) {
