@@ -135,7 +135,7 @@ const rotateFigure = () => {
         getRotatedIndex(window.currentFigure.currentIndexes[3], rotationOrigin)
     ];
 
-    if (newIndexes.filter(index => index > 199).length && newIndexes.map(index => window.cells[index].classList.contains(placedCellClassName)).length)
+    if (newIndexes.filter(index => index > 199 || window.cells[index].classList.contains(placedCellClassName)).length)
         return;
 
     window.currentFigure.currentIndexes = newIndexes;
