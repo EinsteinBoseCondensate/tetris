@@ -48,7 +48,15 @@ const getFigure = () => {
     figure.currentIndexes = [...figure.initialIndexes];
     return figure;
 }
+const populateScore = () => {
+    window.scoreContainer ||= document.querySelector('.score');
+    window.scoreContainer.innerHTML = `Score ${score}`
+}
 
+const populateLevel = () => {
+    window.levelContainer ||= document.querySelector('.level');
+    window.levelContainer.innerHTML = `Level ${currentLevel}`
+}
 const cooldownMs = 300;
 const addKeyEventListener = () => {
     window.addEventListener('keydown', (e) => {
@@ -127,7 +135,7 @@ const rotateFigure = () => {
         getRotatedIndex(window.currentFigure.currentIndexes[3], rotationOrigin)
     ];
 
-    if (newIndexes.filter(index => index > 199).length)
+    if (newIndexes.filter(index => index > 199).length && newIndexes.map(index => window.cells[index].classList.contains(placedCellClassName)).length)
         return;
 
     window.currentFigure.currentIndexes = newIndexes;
@@ -240,10 +248,19 @@ const getRotatedIndex = (indexToRotate, originIndex) => {
 }
 
 const initialize = () => {
+    gameStarted = true;
+    const startOverlayClassList = document.querySelector('.start-game-overlay').classList;
+    startOverlayClassList.contains('hidden') ? undefined : startOverlayClassList.add('hidden');
+    const endOverlayClassList = document.querySelector('.end-game-overlay').classList;
+    !endOverlayClassList.contains('hidden') ? endOverlayClassList.add('hidden') : undefined;
+    window.cells?.forEach(cell => cell.classList.value = 'game-cell')
+    score = 0;
+    currentLevel = 1;
+    populateScore();
+    populateLevel();
     window.cells ||= [...document.querySelectorAll('.game-cell')];
     populateNextFigureOrGameOver();
     window.rowsToCompleteInitialIndexes = [];
-    window.score = 0;
 };
 
 const moveFigureDown = () => {
@@ -311,13 +328,16 @@ const placeFigureAndHandlePossibleLineCompleted = () => {
         return;
     }
     score += window.rowsToCompleteInitialIndexes.length;
-    if (score > scoreBreakPoints[currentLevel - 1])
+    populateScore()
+    if (score >= scoreBreakPoints[currentLevel - 1]){
         currentLevel++;
+        populateLevel();
+    }
     const sortedRowToCompleteInitialIndexes = window.rowsToCompleteInitialIndexes.sort((x, y) => x - y);
     for (var i = 0; i < 10; i++)
         window.cells[i].classList.value = 'game-cell';
 
-    sortedRowToCompleteInitialIndexes.forEach((rowIndex, index) => {
+    sortedRowToCompleteInitialIndexes.forEach((rowIndex) => {
         for (var indexOfRowToBeMovedDown = rowIndex;
             indexOfRowToBeMovedDown > 0;
             indexOfRowToBeMovedDown--) {
@@ -332,15 +352,14 @@ const placeFigureAndHandlePossibleLineCompleted = () => {
 
 }
 const gameOver = () => {
-
+    document.querySelector('.end-game-overlay').classList.remove('hidden')
+    gameStarted = false;
 }
 
 const populateNextFigureOrGameOver = () => {
     const nextFigure = getFigure();
     if (nextFigure.currentIndexes.filter(index => window.cells[index].classList.contains(placedCellClassName)).length) {
         gameOver();
-        document.querySelector('.end-game-overlay').classList.remove('hidden')
-        gameStarted = false;
         return false;
     }
     window.currentFigure = nextFigure;
@@ -382,14 +401,7 @@ let gameStarted = false;
 const startGame = () => {
     if (gameStarted)
         return;
-    gameStarted = true;
-    const startOverlayClassList = document.querySelector('.start-game-overlay').classList;
-    startOverlayClassList.contains('hidden') ? undefined : startOverlayClassList.add('hidden');
-    const endOverlayClassList = document.querySelector('.end-game-overlay').classList;
-    !endOverlayClassList.contains('hidden') ? endOverlayClassList.add('hidden') : undefined;
-    window.cells?.forEach(cell => cell.classList.value = 'game-cell')
-    score = 0;
-    currentLevel = 1;
+    
     initialize();
     runGame();
 };
