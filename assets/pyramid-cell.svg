@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="150%" height="150%" >
+  <!-- Background -->
+  <polygon points="5,5 95,5 95,95 5,95" fill="purple" />
+  <polygon style="opacity:0.7" points="0,100 5,95 5,5 0,0" fill="#3a3a3a"></polygon>
+
+  <polygon style="opacity:0.7" points="0,100 5,95 95,95 100,100" fill="#3a3a3a"></polygon>
+  <polygon style="opacity:0.7" points="100,0 95,5 5,5 0,0" fill="white"></polygon>
+  <polygon style="opacity:0.7" points="100,0 100,100 95,95 95,5" fill="white"></polygon>
+</svg>

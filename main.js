@@ -2,7 +2,8 @@ const keys = Object.freeze({
     left: 'ArrowLeft',
     up: 'ArrowUp',
     right: 'ArrowRight',
-    down: 'ArrowDown'
+    down: 'ArrowDown',
+    enter: 'Enter'
 
 });
 const gameFigures = Object.freeze({
@@ -35,6 +36,9 @@ const gameFigures = Object.freeze({
         class: 'pyramid'
     },
 });
+var score = 0;
+const scoreBreakPoints = [10, 20, 30, 50, 70, 80, 110, 140, 170];
+var currentLevel = 1;
 const placedCellClassName = 'placed';
 const completedCellClassName = 'completed'
 const figureKeys = Object.keys(gameFigures);
@@ -46,13 +50,9 @@ const getFigure = () => {
 }
 
 const cooldownMs = 300;
-let lastExecution = Date.now();
-let keyDownBlocked = false;
 const addKeyEventListener = () => {
     window.addEventListener('keydown', (e) => {
-        if (Date.now() - lastExecution < cooldownMs || keyDownBlocked)
-            return;
-        keyDownBlocked = true;
+
         switch (e.key) {
             case keys.up:
                 rotateFigure();
@@ -66,8 +66,11 @@ const addKeyEventListener = () => {
             case keys.down:
                 moveFigureDownOrPlaceIt();
                 break;
+            case keys.enter:
+                startGame();
+                break;
         }
-        keyDownBlocked = false;
+
     })
 }
 
@@ -134,66 +137,66 @@ const rotateFigure = () => {
 }
 const getStickSanitizedCurrentIndexes = (module, rotationOrigin) => {
     let result = window.currentFigure.currentIndexes;
-    if(module === 9){
-        if(result.includes(rotationOrigin - 20))
+    if (module === 9) {
+        if (result.includes(rotationOrigin - 20))
             result = result.map(index => index - 2)
-        else if(result.includes(rotationOrigin + 20))
+        else if (result.includes(rotationOrigin + 20))
             result = result.map(index => index - 1)
-    }else if(module === 0){
-        if(result.includes(rotationOrigin + 20))
+    } else if (module === 0) {
+        if (result.includes(rotationOrigin + 20))
             result = result.map(index => index + 2)
-        else if(result.includes(rotationOrigin - 20))
+        else if (result.includes(rotationOrigin - 20))
             result = result.map(index => index + 1)
     }
     return result;
 }
 const getPyramidSanitizedCurrentIndexes = (module, rotationOrigin) => {
     let result = window.currentFigure.currentIndexes;
-    if(module === 9){
-        if(result.includes(rotationOrigin + 10) && rotationOrigin%10 === 9)
+    if (module === 9) {
+        if (result.includes(rotationOrigin + 10) && rotationOrigin % 10 === 9)
             result = result.map(index => index - 1)
-    }else if(module === 0){
-        if(result.includes(rotationOrigin + 10) && rotationOrigin%10 === 0)
+    } else if (module === 0) {
+        if (result.includes(rotationOrigin + 10) && rotationOrigin % 10 === 0)
             result = result.map(index => index + 1)
     }
     return result;
 }
 const getSSanitizedCurrentIndexes = (module, rotationOrigin) => {
     let result = window.currentFigure.currentIndexes;
-    if(module === 9){
-        if(result.includes(rotationOrigin + 10) && rotationOrigin%10 === 9)
+    if (module === 9) {
+        if (result.includes(rotationOrigin + 10) && rotationOrigin % 10 === 9)
             result = result.map(index => index - 1)
-    }else if(module === 0){
-        if(result.includes(rotationOrigin - 10) && rotationOrigin%10 === 0)
+    } else if (module === 0) {
+        if (result.includes(rotationOrigin - 10) && rotationOrigin % 10 === 0)
             result = result.map(index => index + 1)
     }
     return result;
 }
 const getS2SanitizedCurrentIndexes = (module, rotationOrigin) => {
     let result = window.currentFigure.currentIndexes;
-    if(module === 9){
-        if(result.includes(rotationOrigin - 10) && rotationOrigin%10 === 9)
+    if (module === 9) {
+        if (result.includes(rotationOrigin - 10) && rotationOrigin % 10 === 9)
             result = result.map(index => index - 1)
-    }else if(module === 0){
-        if(result.includes(rotationOrigin + 10) && rotationOrigin%10 === 0)
+    } else if (module === 0) {
+        if (result.includes(rotationOrigin + 10) && rotationOrigin % 10 === 0)
             result = result.map(index => index + 1)
     }
     return result;
 }
 const getLSanitizedCurrentIndexes = (rotationOrigin) => {
     let result = window.currentFigure.currentIndexes;
-    if(rotationOrigin%10 === 9){
+    if (rotationOrigin % 10 === 9) {
         result = result.map(index => index - 1)
-    }else if(rotationOrigin%10 === 0){
+    } else if (rotationOrigin % 10 === 0) {
         result = result.map(index => index + 1)
     }
     return result;
 }
 const getL2SanitizedCurrentIndexes = (rotationOrigin) => {
     let result = window.currentFigure.currentIndexes;
-    if(rotationOrigin%10 === 9){
+    if (rotationOrigin % 10 === 9) {
         result = result.map(index => index - 1)
-    }else if(rotationOrigin%10 === 0){
+    } else if (rotationOrigin % 10 === 0) {
         result = result.map(index => index + 1)
     }
     return result;
@@ -241,7 +244,6 @@ const initialize = () => {
     populateNextFigureOrGameOver();
     window.rowsToCompleteInitialIndexes = [];
     window.score = 0;
-    addKeyEventListener();
 };
 
 const moveFigureDown = () => {
@@ -306,10 +308,11 @@ const placeFigureAndHandlePossibleLineCompleted = () => {
     });
 
     if (!window.rowsToCompleteInitialIndexes.length) {
-        keyDownBlocked = false;
         return;
     }
-
+    score += window.rowsToCompleteInitialIndexes.length;
+    if (score > scoreBreakPoints[currentLevel - 1])
+        currentLevel++;
     const sortedRowToCompleteInitialIndexes = window.rowsToCompleteInitialIndexes.sort((x, y) => x - y);
     for (var i = 0; i < 10; i++)
         window.cells[i].classList.value = 'game-cell';
@@ -334,8 +337,10 @@ const gameOver = () => {
 
 const populateNextFigureOrGameOver = () => {
     const nextFigure = getFigure();
-    if (window.currentFigure?.currentIndexes.filter(index => nextFigure.initialIndexes.indexOf(index) + 1).length) {
+    if (nextFigure.currentIndexes.filter(index => window.cells[index].classList.contains(placedCellClassName)).length) {
         gameOver();
+        document.querySelector('.end-game-overlay').classList.remove('hidden')
+        gameStarted = false;
         return false;
     }
     window.currentFigure = nextFigure;
@@ -362,19 +367,28 @@ const moveFigureDownOrPlaceIt = () => {
     window.currentFigureRowNumber++;
     moveFigureDown();
 }
-const runGame = () => {
-    const recurrentJobForGameId = setInterval(() => {
+const runGame = async () => {
+    while (gameStarted) {
         if (window.needNextFigure && !populateNextFigureOrGameOver()) {
-            window.clearInterval(recurrentJobForGameId);
             return;
-        } else {
-            moveFigureDownOrPlaceIt();
         }
-    }, 1000);
+        moveFigureDownOrPlaceIt();
+
+        await delay();
+    }
 }
-console.log('all defined')
-window.onload = () => {
+const delay = () => new Promise(res => setTimeout(res, 1000 / currentLevel));
+let gameStarted = false;
+const startGame = () => {
+    if (gameStarted)
+        return;
+    gameStarted = true;
+    const startOverlayClassList = document.querySelector('.start-game-overlay').classList;
+    startOverlayClassList.contains('hidden') ? undefined : startOverlayClassList.add('hidden');
+    const endOverlayClassList = document.querySelector('.end-game-overlay').classList;
+    !endOverlayClassList.contains('hidden') ? endOverlayClassList.add('hidden') : undefined;
+    window.cells?.forEach(cell => cell.classList.value = 'game-cell')
     initialize();
     runGame();
-    console.log('ran')
 };
+addKeyEventListener();

@@ -1,9 +1,12 @@
 body{
-    --main-game-board-height: 100%;
+    --main-game-board-height: 100vh;
     --game-container-width-ratio: 0.9;
-    background: black;
+    background: rgb(68, 0, 255);
     display: flex;
     justify-content: space-around;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
 }
 main{
     --main-width: calc(var(--main-game-board-height)/(2*var(--game-container-width-ratio)));
@@ -11,14 +14,13 @@ main{
     height: var(--main-game-board-height);
     width: var(--main-width);
     background: aliceblue;
-    opacity: 0.3;
 }
 .game-container{
     --main-game-container-width: calc(var(--game-container-width-ratio)*100%);
     display: flex;
     width: var(--main-game-container-width);
     height: 100%;
-    background: pink;
+    background: #00045a;
     flex-wrap: wrap;
     flex: 1;
 }
@@ -47,9 +49,48 @@ main{
     height: 5%;
     flex-grow: 0;
     flex-shrink: 0;
-    margin: -1px;
-    border: 1px solid;
+    width: 10%;
+    background-size: contain !important;
 }
-.stick, .l, .l2, .s, .s2, .pyramid, .square{
-    background: aquamarine;
+.stick{
+    background: url('./assets/stick-cell.svg');
+}
+.l{
+    background: url('./assets/l-cell.svg');
+}
+.l2{
+    background: url('./assets/l2-cell.svg');
+}
+.s{
+    background: url('./assets/s-cell.svg');
+}
+.s2{
+    background: url('./assets/s2-cell.svg');
+}
+.pyramid{
+    background: url('./assets/pyramid-cell.svg');
+}
+.square{
+    background: url('./assets/square-cell.svg');
+}
+polygon{
+    opacity: 0.6;
+}
+.start-game-overlay,
+.end-game-overlay{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top: 0;
+    right: 0;
+    opacity: 0.6;
+    background: lime;
+    text-align: center;
+    padding-top: 50%;
+    overflow: hidden;
+    color: white;
+    font-size: 3rem;
+}
+.hidden{
+    display: none;
 }
