@@ -388,6 +388,8 @@ const startGame = () => {
     const endOverlayClassList = document.querySelector('.end-game-overlay').classList;
     !endOverlayClassList.contains('hidden') ? endOverlayClassList.add('hidden') : undefined;
     window.cells?.forEach(cell => cell.classList.value = 'game-cell')
+    score = 0;
+    currentLevel = 1;
     initialize();
     runGame();
 };
