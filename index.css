@@ -47,10 +47,18 @@ main{
     height: 3rem;
     width: 100%;
 }
-.next-piece{
+.next-pieces{
     height: 100px;
     width: 100%;
-    background: violet;
+    background: violet;    
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-top: 1rem;
+
+}
+.next-piece, .next-next-piece{
+    width: 100%;
 }
 .game-cell{
     display: flex;
@@ -78,7 +86,7 @@ main{
     background-image: url('./assets/figure-cell.svg');
 }
 .s2{
-    background: rgb(255, 0, 212);
+    background: #ff00d4;
     background-image: url('./assets/figure-cell.svg');
 }
 .pyramid{
@@ -90,6 +98,32 @@ main{
     background-image: url('./assets/figure-cell.svg');
 }
 
+.mini-stick, .mini-square, .mini-s, .mini-s2, .mini-l, .mini-l2, .mini-pyramid{    
+    background-size: 100% 100% !important;
+    height: 3rem;
+}
+
+.mini-stick{
+    background-image: url('./assets/mini-stick.svg');
+}
+.mini-l{
+    background-image: url('./assets/mini-l.svg');
+}
+.mini-l2{
+    background-image: url('./assets/mini-l2.svg');
+}
+.mini-s{
+    background-image: url('./assets/mini-s.svg');
+}
+.mini-s2{
+    background-image: url('./assets/mini-s2.svg');
+}
+.mini-pyramid{
+    background-image: url('./assets/mini-pyramid.svg');
+}
+.mini-square{
+    background-image: url('./assets/mini-square.svg');
+}
 .start-game-overlay,
 .end-game-overlay{
     position: absolute;

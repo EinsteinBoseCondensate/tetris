@@ -81,35 +81,42 @@ const gameFigures = Object.freeze({
     Stick: {
         initialIndexes: [4, 14, 24, 34],
         class: 'stick',
+        miniatureClass: 'mini-stick',
         sanitizeIndexesForRotation: getStickSanitizedCurrentIndexes
     },
     L: {
         initialIndexes: [4, 14, 24, 25],
         class: 'l',
+        miniatureClass: 'mini-l',
         sanitizeIndexesForRotation: getLSanitizedCurrentIndexes
     },
     L2: {
         initialIndexes: [4, 14, 24, 23],
         class: 'l2',
+        miniatureClass: 'mini-l2',
         sanitizeIndexesForRotation: getL2SanitizedCurrentIndexes
     },
     S: {
         initialIndexes: [4, 14, 5, 13],
         class: 's',
+        miniatureClass: 'mini-s',
         sanitizeIndexesForRotation: getSSanitizedCurrentIndexes
     },
     S2: {
         initialIndexes: [4, 14, 3, 15],
         class: 's2',
+        miniatureClass: 'mini-s2',
         sanitizeIndexesForRotation: getS2SanitizedCurrentIndexes
     },
     Square: {
         initialIndexes: [4, 5, 14, 15],
         class: 'square',
+        miniatureClass: 'mini-square',
     },
     Pyramid: {
         initialIndexes: [15, 14, 13, 4],
         class: 'pyramid',
+        miniatureClass: 'mini-pyramid',
         sanitizeIndexesForRotation: getPyramidSanitizedCurrentIndexes
     },
 });
@@ -119,12 +126,23 @@ var currentLevel = 1;
 const placedCellClassName = 'placed';
 const completedCellClassName = 'completed'
 const figureKeys = Object.keys(gameFigures);
+const getNewFigure = () => {
+    const newFigure = instantGameFigures[0];
+    instantGameFigures.splice(0, 1);
+    instantGameFigures.push(getFigure());
+    window.nextFigure ||= document.querySelector('.next-piece');
+    window.nextFigure.classList.value = `next-piece ${instantGameFigures[0].miniatureClass}`;
+    window.nextNextFigure ||= document.querySelector('.next-next-piece');
+    window.nextNextFigure.classList.value = `next-next-piece ${instantGameFigures[1].miniatureClass}`;
+    return newFigure;
+}
 const getFigure = () => {
     const figureKey = figureKeys[Math.floor(Math.random() * 7)];
     const figure = { ...gameFigures[figureKey] };
     figure.currentIndexes = [...figure.initialIndexes];
     return figure;
 }
+const instantGameFigures = [];
 const populateScore = () => {
     window.scoreContainer ||= document.querySelector('.score');
     window.scoreContainer.innerHTML = `Score ${score}`
@@ -256,7 +274,14 @@ const initialize = () => {
     startOverlayClassList.contains('hidden') ? undefined : startOverlayClassList.add('hidden');
     const endOverlayClassList = document.querySelector('.end-game-overlay').classList;
     !endOverlayClassList.contains('hidden') ? endOverlayClassList.add('hidden') : undefined;
-    window.cells?.forEach(cell => cell.classList.value = 'game-cell')
+    window.cells?.forEach(cell => cell.classList.value = 'game-cell');
+
+    while (instantGameFigures.length)
+        instantGameFigures.splice(0, 1);
+
+    for (var i = 0; i < 2; i++)
+        instantGameFigures.push(getFigure());
+
     score = 0;
     currentLevel = 1;
     populateScore();
@@ -277,7 +302,7 @@ const moveFigureDown = (manual = false) => {
         cellClassList.contains(window.currentFigure.class) ? undefined : cellClassList.add(window.currentFigure.class);
     });
     window.currentFigure.currentIndexes = nextFilledCellsIndexes;
-    
+
     if (manual) {
         audios.rotateFigure.pause();
         audios.rotateFigure.currentTime = 0;
@@ -302,7 +327,7 @@ const moveFigureLeft = () => {
         cellClassList.contains(window.currentFigure.class) ? undefined : cellClassList.add(window.currentFigure.class);
     });
     window.currentFigure.currentIndexes = nextFilledCellsIndexes;
-    
+
     audios.rotateFigure.pause();
     audios.rotateFigure.currentTime = 0;
     audios.rotateFigure.play();
@@ -326,7 +351,7 @@ const moveFigureRight = () => {
         cellClassList.contains(window.currentFigure.class) ? undefined : cellClassList.add(window.currentFigure.class);
     });
     window.currentFigure.currentIndexes = nextFilledCellsIndexes;
-    
+
     audios.rotateFigure.pause();
     audios.rotateFigure.currentTime = 0;
     audios.rotateFigure.play();
@@ -345,7 +370,7 @@ const placeFigureAndHandlePossibleLineCompleted = () => {
         window.rowsToCompleteInitialIndexes.indexOf(currentRowFirstCellIndex) + 1 ? undefined : window.rowsToCompleteInitialIndexes.push(currentRowFirstCellIndex);
     });
 
-    if (!window.rowsToCompleteInitialIndexes.length) {        
+    if (!window.rowsToCompleteInitialIndexes.length) {
         score++;
         updateStats();
         return;
@@ -369,11 +394,15 @@ const placeFigureAndHandlePossibleLineCompleted = () => {
     audios.linesCompleted.play();
 }
 const gameOver = () => {
+    window.nextFigure ||= document.querySelector('.next-piece');
+    window.nextFigure.classList.value = 'next-piece';
+    window.nextNextFigure ||= document.querySelector('.next-next-piece');
+    window.nextNextFigure.classList.value = 'next-next-piece';
     document.querySelector('.end-game-overlay').classList.remove('hidden')
     gameStarted = false;
 }
 const populateNextFigureOrGameOver = () => {
-    const nextFigure = getFigure();
+    const nextFigure = getNewFigure();
     if (nextFigure.currentIndexes.filter(index => window.cells[index].classList.contains(placedCellClassName)).length) {
         gameOver();
         return false;
@@ -412,7 +441,7 @@ const runGame = async () => {
         await delay();
     }
 }
-const delay = () => new Promise(res => setTimeout(res, currentLevel === 1 ? 1000 : 1000 / (0.8*currentLevel)));
+const delay = () => new Promise(res => setTimeout(res, currentLevel === 1 ? 1000 : 1000 / (0.8 * currentLevel)));
 let gameStarted = false;
 const startGame = () => {
     if (gameStarted)
