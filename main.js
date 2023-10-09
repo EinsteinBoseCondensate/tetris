@@ -6,6 +6,11 @@ const keys = Object.freeze({
     enter: 'Enter'
 
 });
+const audios = Object.freeze({
+    rotateFigure: new Audio('./assets/rotate-figure.mp3'),
+    placeFigure: new Audio('./assets/placed-figure.mp3'),
+    linesCompleted: new Audio('./assets/lines-completed.mp3'),
+})
 const getStickSanitizedCurrentIndexes = ({ module, rotationOrigin }) => {
     let result = window.currentFigure.currentIndexes;
     if (module === 9) {
@@ -150,7 +155,7 @@ const addKeyEventListener = () => {
                 moveFigureRight();
                 break;
             case keys.down:
-                moveFigureDownOrPlaceIt();
+                moveFigureDownOrPlaceIt(true);
                 break;
             case keys.enter:
                 startGame();
@@ -203,6 +208,9 @@ const rotateFigure = () => {
     window.currentFigure.currentIndexes.forEach(index => {
         window.cells[index].classList.add(window.currentFigure.class);
     });
+    audios.rotateFigure.pause();
+    audios.rotateFigure.currentTime = 0;
+    audios.rotateFigure.play();
 }
 
 const getRotatedIndex = (indexToRotate, originIndex) => {
@@ -256,9 +264,12 @@ const initialize = () => {
     window.cells ||= [...document.querySelectorAll('.game-cell')];
     populateNextFigureOrGameOver();
     window.rowsToCompleteInitialIndexes = [];
+    audios.linesCompleted.volume = 0.3;
+    audios.placeFigure.volume = 0.3;
+    audios.rotateFigure.volume = 0.3;
 };
 
-const moveFigureDown = () => {
+const moveFigureDown = (manual = false) => {
     const nextFilledCellsIndexes = window.currentFigure.currentIndexes.map(index => index + 10);
     window.currentFigure.currentIndexes.forEach(index => window.cells[index].classList.remove(window.currentFigure.class))
     nextFilledCellsIndexes.forEach(index => {
@@ -266,6 +277,12 @@ const moveFigureDown = () => {
         cellClassList.contains(window.currentFigure.class) ? undefined : cellClassList.add(window.currentFigure.class);
     });
     window.currentFigure.currentIndexes = nextFilledCellsIndexes;
+    
+    if (manual) {
+        audios.rotateFigure.pause();
+        audios.rotateFigure.currentTime = 0;
+        audios.rotateFigure.play();
+    }
 }
 const moveFigureLeft = () => {
 
@@ -285,6 +302,10 @@ const moveFigureLeft = () => {
         cellClassList.contains(window.currentFigure.class) ? undefined : cellClassList.add(window.currentFigure.class);
     });
     window.currentFigure.currentIndexes = nextFilledCellsIndexes;
+    
+    audios.rotateFigure.pause();
+    audios.rotateFigure.currentTime = 0;
+    audios.rotateFigure.play();
 }
 const moveFigureRight = () => {
 
@@ -305,12 +326,16 @@ const moveFigureRight = () => {
         cellClassList.contains(window.currentFigure.class) ? undefined : cellClassList.add(window.currentFigure.class);
     });
     window.currentFigure.currentIndexes = nextFilledCellsIndexes;
+    
+    audios.rotateFigure.pause();
+    audios.rotateFigure.currentTime = 0;
+    audios.rotateFigure.play();
 }
 
 const placeFigureAndHandlePossibleLineCompleted = () => {
     window.currentFigure.placed = true;
     window.currentFigure.currentIndexes.forEach(index => window.cells[index].classList.add(placedCellClassName));
-
+    audios.placeFigure.play();
     window.currentFigure.currentIndexes.forEach(index => {
         const currentRowFirstCellIndex = Math.floor(index / 10) * 10;
         for (var i = 0; i < 10; i++) {
@@ -341,7 +366,7 @@ const placeFigureAndHandlePossibleLineCompleted = () => {
     while (window.rowsToCompleteInitialIndexes.length) {
         window.rowsToCompleteInitialIndexes.splice(0)
     }
-
+    audios.linesCompleted.play();
 }
 const gameOver = () => {
     document.querySelector('.end-game-overlay').classList.remove('hidden')
@@ -358,7 +383,7 @@ const populateNextFigureOrGameOver = () => {
     window.needNextFigure = false;
     return true;
 }
-const moveFigureDownOrPlaceIt = () => {
+const moveFigureDownOrPlaceIt = (manual = false) => {
 
     if (window.currentFigure.placed)
         return;
@@ -375,7 +400,7 @@ const moveFigureDownOrPlaceIt = () => {
         return;
     }
     window.currentFigureRowNumber++;
-    moveFigureDown();
+    moveFigureDown(manual);
 }
 const runGame = async () => {
     while (gameStarted) {
