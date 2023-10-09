@@ -178,8 +178,7 @@ const rotateFigure = () => {
 
         sanitizedCurrentIndexes = window.currentFigure.sanitizeIndexesForRotation({ module: extremeModules[0], rotationOrigin })
 
-        if (sanitizedCurrentIndexes.filter(index => index > 199).length ||
-            sanitizedCurrentIndexes.filter(index => window.cells[index].classList.contains(placedCellClassName)).length)
+        if (sanitizedCurrentIndexes.filter(index => index > 199 || window.cells[index].classList.contains(placedCellClassName)).length)
             return;
 
         rotationOrigin = sanitizedCurrentIndexes[1];
@@ -329,15 +328,13 @@ const placeFigureAndHandlePossibleLineCompleted = () => {
     score += window.rowsToCompleteInitialIndexes.length * 10;
     updateStats();
     const sortedRowToCompleteInitialIndexes = window.rowsToCompleteInitialIndexes.sort((x, y) => x - y);
-    for (var i = 0; i < 10; i++)
-        window.cells[i].classList.value = 'game-cell';
 
     sortedRowToCompleteInitialIndexes.forEach((rowIndex) => {
         for (var indexOfRowToBeMovedDown = rowIndex;
             indexOfRowToBeMovedDown > 0;
             indexOfRowToBeMovedDown--) {
 
-            window.cells[indexOfRowToBeMovedDown + 9].classList.value = window.cells[indexOfRowToBeMovedDown - 1].classList;
+            window.cells[indexOfRowToBeMovedDown + 9].classList.value = window.cells[indexOfRowToBeMovedDown - 1].classList.value;
         }
 
     })
@@ -390,7 +387,7 @@ const runGame = async () => {
         await delay();
     }
 }
-const delay = () => new Promise(res => setTimeout(res, 1000 / currentLevel));
+const delay = () => new Promise(res => setTimeout(res, currentLevel === 1 ? 1000 : 1000 / (0.8*currentLevel)));
 let gameStarted = false;
 const startGame = () => {
     if (gameStarted)

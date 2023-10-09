@@ -59,32 +59,37 @@ main{
     flex-grow: 0;
     flex-shrink: 0;
     width: 10%;
-    background-size: contain !important;
+    background-size: 100% 100% !important;
 }
 .stick{
-    background: url('./assets/stick-cell.svg');
+    background: #ff6a00;
+    background-image: url('./assets/figure-cell.svg');
 }
 .l{
-    background: url('./assets/l-cell.svg');
+    background: red;
+    background-image: url('./assets/figure-cell.svg');
 }
 .l2{
-    background: url('./assets/l2-cell.svg');
+    background: burlywood;
+    background-image: url('./assets/figure-cell.svg');
 }
 .s{
-    background: url('./assets/s-cell.svg');
+    background: greenyellow;
+    background-image: url('./assets/figure-cell.svg');
 }
 .s2{
-    background: url('./assets/s2-cell.svg');
+    background: rgb(255, 0, 212);
+    background-image: url('./assets/figure-cell.svg');
 }
 .pyramid{
-    background: url('./assets/pyramid-cell.svg');
+    background: purple;
+    background-image: url('./assets/figure-cell.svg');
 }
 .square{
-    background: url('./assets/square-cell.svg');
+    background: #FFB700;
+    background-image: url('./assets/figure-cell.svg');
 }
-polygon{
-    opacity: 0.6;
-}
+
 .start-game-overlay,
 .end-game-overlay{
     position: absolute;
