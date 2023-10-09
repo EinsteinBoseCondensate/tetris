@@ -6,7 +6,7 @@ const keys = Object.freeze({
     enter: 'Enter'
 
 });
-const getStickSanitizedCurrentIndexes = ({module, rotationOrigin}) => {
+const getStickSanitizedCurrentIndexes = ({ module, rotationOrigin }) => {
     let result = window.currentFigure.currentIndexes;
     if (module === 9) {
         if (result.includes(rotationOrigin - 20))
@@ -21,7 +21,7 @@ const getStickSanitizedCurrentIndexes = ({module, rotationOrigin}) => {
     }
     return result;
 }
-const getPyramidSanitizedCurrentIndexes = ({module, rotationOrigin}) => {
+const getPyramidSanitizedCurrentIndexes = ({ module, rotationOrigin }) => {
     let result = window.currentFigure.currentIndexes;
     if (module === 9) {
         if (result.includes(rotationOrigin + 10) && rotationOrigin % 10 === 9)
@@ -32,7 +32,7 @@ const getPyramidSanitizedCurrentIndexes = ({module, rotationOrigin}) => {
     }
     return result;
 }
-const getSSanitizedCurrentIndexes = ({module, rotationOrigin}) => {
+const getSSanitizedCurrentIndexes = ({ module, rotationOrigin }) => {
     let result = window.currentFigure.currentIndexes;
     if (module === 9) {
         if (result.includes(rotationOrigin + 10) && rotationOrigin % 10 === 9)
@@ -43,7 +43,7 @@ const getSSanitizedCurrentIndexes = ({module, rotationOrigin}) => {
     }
     return result;
 }
-const getS2SanitizedCurrentIndexes = ({module, rotationOrigin}) => {
+const getS2SanitizedCurrentIndexes = ({ module, rotationOrigin }) => {
     let result = window.currentFigure.currentIndexes;
     if (module === 9) {
         if (result.includes(rotationOrigin - 10) && rotationOrigin % 10 === 9)
@@ -54,7 +54,7 @@ const getS2SanitizedCurrentIndexes = ({module, rotationOrigin}) => {
     }
     return result;
 }
-const getLSanitizedCurrentIndexes = ({rotationOrigin}) => {
+const getLSanitizedCurrentIndexes = ({ rotationOrigin }) => {
     let result = window.currentFigure.currentIndexes;
     if (rotationOrigin % 10 === 9) {
         result = result.map(index => index - 1)
@@ -63,7 +63,7 @@ const getLSanitizedCurrentIndexes = ({rotationOrigin}) => {
     }
     return result;
 }
-const getL2SanitizedCurrentIndexes = ({rotationOrigin}) => {
+const getL2SanitizedCurrentIndexes = ({ rotationOrigin }) => {
     let result = window.currentFigure.currentIndexes;
     if (rotationOrigin % 10 === 9) {
         result = result.map(index => index - 1)
@@ -72,7 +72,6 @@ const getL2SanitizedCurrentIndexes = ({rotationOrigin}) => {
     }
     return result;
 }
-
 const gameFigures = Object.freeze({
     Stick: {
         initialIndexes: [4, 14, 24, 34],
@@ -110,7 +109,7 @@ const gameFigures = Object.freeze({
     },
 });
 var score = 0;
-const scoreBreakPoints = [10, 20, 30, 50, 70, 80, 110, 140, 170];
+const scoreBreakPoints = [50, 100, 150, 250, 350, 400, 550, 700, 850];
 var currentLevel = 1;
 const placedCellClassName = 'placed';
 const completedCellClassName = 'completed'
@@ -130,7 +129,13 @@ const populateLevel = () => {
     window.levelContainer ||= document.querySelector('.level');
     window.levelContainer.innerHTML = `Level ${currentLevel}`
 }
-const cooldownMs = 300;
+const updateStats = () => {
+    populateScore();
+    if (score >= scoreBreakPoints[currentLevel - 1]) {
+        currentLevel++;
+        populateLevel();
+    }
+}
 const addKeyEventListener = () => {
     window.addEventListener('keydown', (e) => {
 
@@ -171,7 +176,7 @@ const rotateFigure = () => {
     if (extremeModules.length === 1) {
         let sanitizedCurrentIndexes = window.currentFigure.currentIndexes;
 
-        sanitizedCurrentIndexes = window.currentFigure.sanitizeIndexesForRotation({module: extremeModules[0], rotationOrigin})
+        sanitizedCurrentIndexes = window.currentFigure.sanitizeIndexesForRotation({ module: extremeModules[0], rotationOrigin })
 
         if (sanitizedCurrentIndexes.filter(index => index > 199).length ||
             sanitizedCurrentIndexes.filter(index => window.cells[index].classList.contains(placedCellClassName)).length)
@@ -188,7 +193,7 @@ const rotateFigure = () => {
         getRotatedIndex(window.currentFigure.currentIndexes[3], rotationOrigin)
     ];
 
-    if (newIndexes.filter(index => index > 199 || window.cells[index].classList.contains(placedCellClassName)).length){
+    if (newIndexes.filter(index => index > 199 || window.cells[index].classList.contains(placedCellClassName)).length) {
         currentIndexesCopy.forEach(index => {
             window.cells[index].classList.add(window.currentFigure.class);
         });
@@ -302,6 +307,7 @@ const moveFigureRight = () => {
     });
     window.currentFigure.currentIndexes = nextFilledCellsIndexes;
 }
+
 const placeFigureAndHandlePossibleLineCompleted = () => {
     window.currentFigure.placed = true;
     window.currentFigure.currentIndexes.forEach(index => window.cells[index].classList.add(placedCellClassName));
@@ -315,15 +321,13 @@ const placeFigureAndHandlePossibleLineCompleted = () => {
         window.rowsToCompleteInitialIndexes.indexOf(currentRowFirstCellIndex) + 1 ? undefined : window.rowsToCompleteInitialIndexes.push(currentRowFirstCellIndex);
     });
 
-    if (!window.rowsToCompleteInitialIndexes.length) {
+    if (!window.rowsToCompleteInitialIndexes.length) {        
+        score++;
+        updateStats();
         return;
     }
-    score += window.rowsToCompleteInitialIndexes.length;
-    populateScore()
-    if (score >= scoreBreakPoints[currentLevel - 1]){
-        currentLevel++;
-        populateLevel();
-    }
+    score += window.rowsToCompleteInitialIndexes.length * 10;
+    updateStats();
     const sortedRowToCompleteInitialIndexes = window.rowsToCompleteInitialIndexes.sort((x, y) => x - y);
     for (var i = 0; i < 10; i++)
         window.cells[i].classList.value = 'game-cell';
@@ -346,7 +350,6 @@ const gameOver = () => {
     document.querySelector('.end-game-overlay').classList.remove('hidden')
     gameStarted = false;
 }
-
 const populateNextFigureOrGameOver = () => {
     const nextFigure = getFigure();
     if (nextFigure.currentIndexes.filter(index => window.cells[index].classList.contains(placedCellClassName)).length) {
@@ -392,7 +395,7 @@ let gameStarted = false;
 const startGame = () => {
     if (gameStarted)
         return;
-    
+
     initialize();
     runGame();
 };
